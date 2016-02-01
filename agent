@@ -1,0 +1,12 @@
+#!/bin/sh
+
+AGENT="${0%/*}/agent_$(hostname)_${LOGNAME}.sock"
+
+trap "rm -f $AGENT" 0
+umask 0077
+
+HANDLER=/bin/cat  ## TODO
+
+while socat -d -d -v UNIX-LISTEN:$AGENT,umask=0007 EXEC:${HANDLER}; do
+  echo Restarting...
+done

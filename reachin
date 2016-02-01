@@ -1,0 +1,13 @@
+#!/bin/sh
+
+MASTER="$1"; shift
+SOCK="ctrl_$(hostname)_${LOGNAME}"
+
+trap "rm -f ${PWD}/${SOCK}.sock" 2 15
+umask 0077
+
+socat PTY,link=${PWD}/${SOCK}.pty \
+  EXEC:"autossh -M 0 -t -o ServerAliveInterval=10 \
+  ""$@"" \
+  -R /home/madduck/wip/lca2016/${SOCK}.sock\:$HOME/lca2016/agent_$(hostname)_${LOGNAME}.sock \
+  ${MASTER} 'trap \"rm -f /home/madduck/wip/lca2016/${SOCK}.sock\" 0 2 15; sleep 86400'",pty

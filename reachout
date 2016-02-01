@@ -1,0 +1,13 @@
+#!/bin/sh
+
+TARGET="$1"; shift
+SOCK="ctrl_$(hostname)_${TARGET}"
+
+trap "rm -f ${PWD}/${SOCK}.sock" 2 15
+umask 0077
+
+socat PTY,link=${PWD}/${SOCK}.pty \
+  EXEC:"autossh -M 0 -t -o ServerAliveInterval=10 \
+    ""$@"" \
+    -L ${PWD}/${SOCK}.sock\:/home/${TARGET}/lca2016/agent_$(hostname)_${TARGET}.sock \
+    ${TARGET} 'echo Connected; sleep 86400'",pty
